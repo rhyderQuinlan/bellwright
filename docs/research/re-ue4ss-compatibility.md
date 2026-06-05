@@ -1,12 +1,15 @@
 # RE-UE4SS Compatibility Research — Bellwright
 
 *Researched: 2026-06-05*
+*Updated: 2026-06-05 (engine version confirmed UE 5.6.1)*
 *Task: S001-003*
 *Status: complete*
 
 ## Summary
 
-RE-UE4SS v3.0.1 is **confirmed working** with Bellwright by the community. Multiple Lua-based mods are actively published and used on Nexus Mods (as of 2024–2025), all requiring UE4SS 3.0.1 as a dependency. The key Bellwright-specific configuration requirement is setting `bUseUObjectArrayCache = false` in `UE4SS-settings.ini`. No Bellwright-specific crashes or incompatibilities with UE4SS are reported in any RE-UE4SS GitHub issues. Risk level is **LOW** for the game's confirmed UE5.3 binary; **MEDIUM-LOW** if Bellwright has been updated to UE5.6 (experimental UE4SS builds add UE5.6 support with known limitations around Utf8String).
+**[UPDATED 2026-06-05]** Game binary is confirmed **UE 5.6.1**. RE-UE4SS stable v3.0.1 does **not** support UE 5.6 — it will throw `Fatal Error: Engine version is not supported`. The **`experimental-latest`** build must be used instead. This build adds UE 5.6 support (PR #977) and has been confirmed functional on other UE 5.6 games, but Utf8String is unsupported, meaning some FString properties exposed as Utf8 in 5.6 may be unreadable via Lua. Community Bellwright mods were authored against v3.0.1 (UE 5.3 era) — they will need to be revalidated against experimental-latest.
+
+The Bellwright-specific config requirement (`bUseUObjectArrayCache = false`) is unchanged and must still be set.
 
 ---
 
@@ -206,9 +209,14 @@ If Bellwright's binary is now on UE5.6+, the stable RE-UE4SS v3.0.1 will produce
 
 ## Go/No-Go Recommendation
 
-- **RE-UE4SS feasibility:** GREEN (if game binary is UE5.3–5.5) / AMBER (if binary is UE5.6+)
-- **Risk level:** Low (UE5.3) / Medium-Low (UE5.6)
-- **Reason:** Community has confirmed RE-UE4SS v3.0.1 working with Bellwright, with active Lua mods published on Nexus Mods. The only required game-specific config is `bUseUObjectArrayCache = false`. The primary remaining uncertainty is whether a 2025 game update pushed the binary to UE5.6 — if so, the experimental-latest build must be used instead of stable v3.0.1, and Utf8String-dependent functionality may be unavailable. No AOB customization has been needed by the community.
+| Concern | Status | Action |
+|---------|--------|--------|
+| RE-UE4SS injection feasibility | **AMBER — action required** | Game binary is confirmed **UE 5.6.1**. Stable v3.0.1 will throw `Fatal Error: Engine version is not supported`. Must download and use `experimental-latest` build: https://github.com/UE4SS-RE/RE-UE4SS/releases/tag/experimental-latest |
+| Utf8String limitation | AMBER | UE 5.6 converts some FString properties to Utf8String. The experimental-latest build does NOT support reading these yet. May affect some property reads in Lua — extent unknown until tested on Bellwright specifically. |
+| bUseUObjectArrayCache | Confirmed required | Must be set to `false` in `UE4SS-settings.ini`. Unchanged from pre-5.6 requirement. |
+| Existing community mods | AMBER | Bellwright Modifier (mods/69), Villager Speed Enhancer (mods/113), Map Revealer Alternative (mods/66) were all authored against v3.0.1 (UE5.3 era). Must be retested against experimental-latest on UE 5.6.1 before trusting them as reference implementations. |
+
+**Summary:** RE-UE4SS is usable on Bellwright UE 5.6.1 but **requires experimental-latest**, not the stable release. The Utf8String gap is an unknown risk that will surface only during physical testing.
 
 ---
 
@@ -216,7 +224,7 @@ If Bellwright's binary is now on UE5.6+, the stable RE-UE4SS v3.0.1 will produce
 
 | Test ID | Test | What to Run | Expected Output | Blocker |
 |---|---|---|---|---|
-| T001-003-001 | Detect current binary UE version | Run game, check `UE4SS.log` first line | `Engine version: 5.x.y` logged | macOS — requires Windows |
+| T001-003-001 | Detect current binary UE version | Run game, check `UE4SS.log` first line | `Engine version: 5.x.y` logged | **RESOLVED** — confirmed UE 5.6.1-0+UE5 via game log 2026-06-05 |
 | T001-003-002 | Injection test | Place DLLs in `Win64\`, launch game | UE4SS console appears; `UE4SS.log` created with no Fatal Error | macOS — requires Windows |
 | T001-003-003 | Lua baseline | Open UE4SS console (`@`), run `print("hello")` | Text `hello` appears in console output | macOS — requires Windows |
 | T001-003-004 | UObject read | `UEHelpers.GetPlayer():GetActorLocation()` in Lua console | Location vector printed (e.g., `{X=1234.5, Y=5678.9, Z=200.0}`) | macOS — requires Windows |

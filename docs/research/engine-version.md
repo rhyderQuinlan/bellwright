@@ -1,28 +1,28 @@
 # Engine Version Research — Bellwright
 
 *Researched: 2026-06-05*
+*Updated: 2026-06-05 (binary confirmed via game log)*
 *Task: S001-001*
-*Status: partially-blocked*
+*Status: complete*
 
 ## Summary
 
-The Bellwright game binary was upgraded from UE 5.3.2 (at Early Access launch, April 2024) to **UE 5.5.4** at some point, and then upgraded again to **UE 5.6** with the Maiden Voyage (v2.0) update released December 9, 2025 — confirmed directly in a developer interview at TheGamer (January 2, 2026). The ModKit launched in June 2025 was documented as running on **UE 5.5.4** in the official modding wiki; a community user on the Epic UE forums (April 2026) independently described the modkit as "made in Unreal Engine 5 (5.6)", suggesting the ModKit was also updated to 5.6 after the game engine upgrade, though this is unconfirmed from official sources. The exact current ModKit version requires verification against the live modding wiki (TLS cert issue prevented direct fetch during this research).
+**CONFIRMED via game log (2026-06-05):** The Bellwright game binary is **UE 5.6.1-0+UE5** with compatible engine version **5.6.0-0+UE5**. This was read directly from `%LOCALAPPDATA%\Bellwright\Saved\Logs\Bellwright.log` on the Windows machine running the game. The game upgraded from UE 5.3.2 (EA launch, April 2024) → UE 5.5.4 (ModKit launch, June 2025) → **UE 5.6.1** (Maiden Voyage v2.0, December 9, 2025).
 
-Binary-level confirmation (strings extraction from the shipping executable) is pending and requires a Windows game installation.
+The ModKit is documented at UE 5.5.4 (official wiki, June 2025 launch). Whether the ModKit was also updated to 5.6 after December 2025 is the **one remaining unknown** — the wiki's TLS cert is expired. **This should be checked on the Windows machine** by reading `BellwrightModKit\Engine\Build\Build.version`.
 
 ---
 
 ## Confirmed Findings
 
+- **[CONFIRMED 2026-06-05 via game log]** Current game binary: `Engine Version: 5.6.1-0+UE5` / `Compatible Engine Version: 5.6.0-0+UE5`
 - At Early Access launch (April 2024) the game log showed `LogInit: Engine Version: 5.3.2-0+UE5` — confirmed by Steam community discussion thread.
-- The official Bellwright Modding Wiki (`modding.playbellwright.com`) states: *"Bellwright Modkit is a powerful suite of tools that gives you access to the same modified version of Unreal Engine 5 (5.5.4) editor that we use to create the game."* — This quote was retrieved from the Basic Modkit Usage page and was consistent across multiple independent search-result snippets.
-- A Donkey Crew developer, in an email interview published January 2, 2026 at TheGamer, stated: *"Our main map, Karvenia, is quite heavy for players, even though we updated to the newer version of Unreal Engine 5.6, which gave us a performance boost."* — This is a primary source, direct developer attribution.
-- Multiple secondary sources (Massively Overpowered, GameRant search summaries) independently describe the Maiden Voyage (v2.0) update (released December 9, 2025) as including "a shift to Unreal Engine 5.6 and its associated overall performance boost."
-- A user on the Epic Developer Community Forum (thread: "Trying to use an imported asset in a UE5 Game", post dated April 19, 2026) described their modkit as "made in the Unreal Engine 5 (5.6), for a game called Bellwright." This is an independent community source consistent with the 5.6 upgrade.
-- RE-UE4SS targets UE versions 4.12 through 5.7 (confirmed from official UE4SS documentation and DeepWiki). UE 5.6 falls within the "5.0–5.7 Modern Support" range.
-- No Bellwright-specific compatibility notes were found in the RE-UE4SS GitHub or documentation.
-- The UE4SS configuration required for Bellwright: set `bUseUObjectArrayCache = false` in `UE4SS-settings.ini` (confirmed by Nexus Mods community documentation). UE4SS version 3.0.1 is documented as the recommended version for Bellwright.
-- The early claim of UE 5.3.2 as the *current* version was refuted — it was the launch version only. The game has since been upgraded.
+- The official Bellwright Modding Wiki (`modding.playbellwright.com`) states: *"Bellwright Modkit is a powerful suite of tools that gives you access to the same modified version of Unreal Engine 5 (5.5.4) editor that we use to create the game."* — Retrieved from Basic Modkit Usage page. May be outdated (wiki TLS cert expired).
+- A Donkey Crew developer, in an email interview published January 2, 2026 at TheGamer, stated: *"we updated to the newer version of Unreal Engine 5.6, which gave us a performance boost."* — Primary source, direct developer attribution.
+- RE-UE4SS stable v3.0.1 supports UE 4.12–5.5 only. **UE 5.6.1 requires the `experimental-latest` build.**
+- RE-UE4SS `experimental-latest` adds UE 5.6 support (PR #977) but Utf8String is unsupported.
+- Required Bellwright config for RE-UE4SS: `bUseUObjectArrayCache = false` in `UE4SS-settings.ini`.
+- The early claim of UE 5.3.2 as the *current* version was refuted — it was the launch version only.
 
 ---
 
@@ -82,8 +82,8 @@ Binary-level confirmation (strings extraction from the shipping executable) is p
 
 | Concern | Status | Reason |
 |---------|--------|--------|
-| ModKit asset loading | AMBER | Game binary is confirmed UE 5.6; ModKit documentation shows 5.5.4 from June 2025, but may have been updated — actual current ModKit version is unconfirmed. Assets cooked in 5.5.4 should load in 5.6 under UE's backward-compat policy, but this is not validated. |
-| RE-UE4SS injection | GREEN (pending AOB verification) | UE 5.6 is within RE-UE4SS's 4.12–5.7 supported range. The `bUseUObjectArrayCache = false` setting is required; AOB patterns should be re-verified after the 5.5→5.6 engine upgrade. |
+| ModKit asset loading | AMBER | Game binary confirmed **UE 5.6.1**. ModKit documented at 5.5.4 (wiki may be outdated). If ModKit is still 5.5.4, cooked assets carry a 5.5 version header — UE's backward-compat policy should load them in 5.6.1 but this is unvalidated. Check `BellwrightModKit\Engine\Build\Build.version` to resolve. |
+| RE-UE4SS injection | **AMBER — action required** | Stable v3.0.1 does NOT support UE 5.6. Must use `experimental-latest` build. UE 5.6 support is functional but Utf8String is unsupported (may affect some property reads). Download: https://github.com/UE4SS-RE/RE-UE4SS/releases/tag/experimental-latest |
 
 ---
 
