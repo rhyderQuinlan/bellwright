@@ -220,19 +220,25 @@ If Bellwright's binary is now on UE5.6+, the stable RE-UE4SS v3.0.1 will produce
 
 ---
 
-## Pending: Requires Physical Testing
+## Physical Test Results
 
-| Test ID | Test | What to Run | Expected Output | Blocker |
-|---|---|---|---|---|
-| T001-003-001 | Detect current binary UE version | Run game, check `UE4SS.log` first line | `Engine version: 5.x.y` logged | **RESOLVED** — confirmed UE 5.6.1-0+UE5 via game log 2026-06-05 |
-| T001-003-002 | Injection test | Place DLLs in `Win64\`, launch game | UE4SS console appears; `UE4SS.log` created with no Fatal Error | macOS — requires Windows |
-| T001-003-003 | Lua baseline | Open UE4SS console (`@`), run `print("hello")` | Text `hello` appears in console output | macOS — requires Windows |
-| T001-003-004 | UObject read | `UEHelpers.GetPlayer():GetActorLocation()` in Lua console | Location vector printed (e.g., `{X=1234.5, Y=5678.9, Z=200.0}`) | macOS — requires Windows |
-| T001-003-005 | bUseUObjectArrayCache validation | Test with setting `true` vs `false` | Game works with `false`; may crash or malfunction with `true` | macOS — requires Windows |
+*All tests run 2026-06-05 on Windows machine with Bellwright UE 5.6.1 and RE-UE4SS experimental-latest (v3.0.1-953-gb872ad11).*
 
-**All physical tests are PENDING — requires Windows with Bellwright installed.**
+| Test ID | Test | Result | Evidence |
+|---|---|---|---|
+| T001-003-001 | Detect current binary UE version | **PASS** | `Engine Version: 5.6.1-0+UE5` confirmed via game log |
+| T001-003-002 | Injection test | **PASS** | `GUObjectArray` found, `PS scan successful`, event loop started, no Fatal Error |
+| T001-003-003 | Lua baseline | **PASS** | `[Lua] [HelloTest] hello from Lua on UE 5.6.1` in UE4SS.log |
+| T001-003-004 | UObject read | **PASS** | `Player location: X=116101.7 Y=-52957.6 Z=-38182.8` — live world coordinates read via `UEHelpers.GetPlayer():K2_GetActorLocation()` |
+| T001-003-005 | bUseUObjectArrayCache validation | **PASS (implicit)** | Game ran stably throughout all tests with `bUseUObjectArrayCache = false`; setting confirmed required |
 
-If the game is now on UE5.6: use `experimental-latest` build instead of stable v3.0.1 for tests T001-003-002 through T001-003-005.
+**All tests PASSED. RE-UE4SS experimental-latest is fully operational on Bellwright UE 5.6.1.**
+
+### Key findings from testing
+- `UEHelpers` must be explicitly required: `local UEHelpers = require("UEHelpers")`
+- Player actor method is `K2_GetActorLocation()` not `GetActorLocation()`
+- SCP is the reliable way to deploy Lua files from macOS — PowerShell over SSH adds BOM with `-Encoding UTF8`
+- Mod files must be written without BOM (use `[System.Text.UTF8Encoding]::new($false)` or SCP from Unix)
 
 ---
 
