@@ -1,0 +1,32 @@
+# Unreal Engine
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
+Saved/
+.vs/
+*.VC.db
+*.opensdf
+*.opendb
+*.sdf
+*.sln
+*.suo
+*.xcworkspace
+*.xcodeproj
+*_BuiltData.uasset
+
+# ModKit cook output (tracked separately via Workshop)
+CookedContent/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Git LFS will handle these — do not store raw binaries in history
+# (tracked via .gitattributes)
+
+# Secrets / credentials
+.env
+*.secret
+credentials.json
